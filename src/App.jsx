@@ -3,6 +3,7 @@ import { useState } from "react";
 import Player from "./components/Player";
 import GameBoard from "./components/GameBoard";
 import Log from "./components/Log";
+import GameOver from "./components/GameOver";
 import { WINNING_COMBINATIONS } from "./winning-combinations";
 
 const initialGameBoard = Array(3)
@@ -22,7 +23,7 @@ function App() {
 
   const activePlayer = getActivePlayer(gameTurns);
 
-  let gameBoard = initialGameBoard;
+  let gameBoard = [...initialGameBoard.map((row) => [...row])];
 
   for (const turn of gameTurns) {
     const { square, player } = turn;
@@ -45,6 +46,8 @@ function App() {
     }
   }
 
+  const hasDraw = gameTurns.length === 9 && !winner;
+
   const handlePlayerChange = (rowIndex, colIndex) => {
     setGameTurns((prevTurns) => {
       const currentPlayer = getActivePlayer(prevTurns);
@@ -53,6 +56,10 @@ function App() {
         ...prevTurns,
       ];
     });
+  };
+
+  const handleRestartGame = () => {
+    setGameTurns([]);
   };
 
   return (
@@ -70,7 +77,9 @@ function App() {
             isActive={activePlayer === "O"}
           />
         </ol>
-        {winner && <p>You won, {winner}!</p>}
+        {(winner || hasDraw) && (
+          <GameOver winner={winner} onRestart={handleRestartGame} />
+        )}
         {!winner && gameTurns.length === 9 && (
           <div className="draw">
             <h2>It's a draw!</h2>
